@@ -59,15 +59,13 @@ export class EmployeeTable {
 
   /**
    * Deletes the first employee entry in the current search results.
+   * Verifies deletion by waiting for the "No Records Found" message.
    */
   async deleteFirstEmployee(employeeId?: string): Promise<void> {
     await this.deleteButton.click();
     await this.confirmDeleteButton.click();
-    // Only verify deletion by checking that the employee row for the provided id disappears.
-    if (employeeId) {
-      const row = this.rowForEmployeeId(employeeId);
-      await expect(row).toHaveCount(0, { timeout: TIMEOUTS.assertion });
-    }
+    // Verify deletion by waiting for "No Records Found" or empty state message.
+    await this.noRecordsText.waitFor({ state: 'visible', timeout: TIMEOUTS.assertion });
   }
 
   /**
