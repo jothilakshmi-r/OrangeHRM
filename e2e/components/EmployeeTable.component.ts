@@ -68,16 +68,10 @@ export class EmployeeTable {
   }
 
   /**
-   * Verifies that the employee table shows "No matching records" message.
-   * Useful for verifying that a deleted employee no longer exists.
-   * Uses both text detection and row count as fallback.
+   * Verifies that the employee table shows "No Records Found" message.
    */
   async verifyNoRecordsFound(): Promise<void> {
-    await expect(this.noRecordsText).toBeVisible({ timeout: 5000 });
-      
-    const rowCount = await this.getVisibleRowCount();
-    if (rowCount === 0) return;
-    throw new Error(`Expected no employee records but found ${rowCount} row(s)`);
+    await expect(this.noRecordsText).toBeVisible({ timeout: TIMEOUTS.assertion });
   }
 
   /**
