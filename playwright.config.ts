@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 import dotenv from 'dotenv';
 import path from 'path';
-import { TIMEOUTS } from './src/config/timeouts';
+import { TIMEOUTS } from './e2e/config/timeouts';
 
 /**
  * Read environment variables from file.
@@ -24,7 +24,7 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
 
-  testDir: './src',
+  testDir: './e2e',
   testMatch: ['tests/**/*.page.ts', 'utils/**/*.setup.ts'],
   /* Run tests in files in parallel */
   fullyParallel: true,
@@ -42,6 +42,10 @@ export default defineConfig({
     {
       name: 'setup',
       testMatch: 'utils/**/*.setup.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: 'https://opensource-demo.orangehrmlive.com',
+      },
     },
 
     {

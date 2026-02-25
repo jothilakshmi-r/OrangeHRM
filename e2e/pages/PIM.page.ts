@@ -1,52 +1,33 @@
-import { Locator, Page, expect } from '@playwright/test';
+import { Page, expect } from '@playwright/test';
 import { EmployeeForm } from '../components/EmployeeForm.component';
+import { EmployeeTable } from '../components/EmployeeTable.component';
 
+/**
+ * PIM Page Object - Represents the PIM (Personnel Information Management) page.
+ * Composes EmployeeForm and EmployeeTable components following CPOM pattern.
+ */
 export class PIMPage {
   readonly employeeForm: EmployeeForm;
-  private readonly employeeNameInput: Locator;
-  private readonly employeeIdInput: Locator;
-  private readonly searchButton: Locator;
-  private readonly deleteButton: Locator;
-  private readonly confirmDeleteButton: Locator;
+  readonly employeeTable: EmployeeTable;
 
   constructor(private readonly page: Page) {
     this.employeeForm = new EmployeeForm(page);
-    this.employeeNameInput = this.page.locator('input[placeholder="Type for hints..."]').first();
-    this.employeeIdInput = this.page.locator('label:has-text("Employee Id")').locator('xpath=ancestor::div[contains(@class,"oxd-input-group")]//input');
-    this.searchButton = this.page.getByRole('button', { name: 'Search' });
-    this.deleteButton = this.page.locator('i.bi-trash').first();
-    this.confirmDeleteButton = this.page.getByRole('button', { name: 'Yes, Delete' });
+    this.employeeTable = new EmployeeTable(page);
   }
 
   /**
-   * Verifies that the current page belongs to the PIM module.
+   * Verifies that the current page is the PIM module by checking the URL.
    */
-  async verifyPIM() {
+  async verifyPIM(): Promise<void> {
     await expect(this.page).toHaveURL(/\/pim\//);
   }
 
   /**
-   * Searches employees by name using the Employee Information filter.
+   * Navigates to the PIM module.
    */
-  async searchEmployee(name: string) {
-    await this.employeeNameInput.fill(name);
-    await this.searchButton.click();
-  }
-
-  /**
-   * Searches employees by employee id.
-   */
-  async searchEmployeeById(employeeId: string) {
-    await this.employeeIdInput.fill(employeeId);
-    await this.searchButton.click();
-  }
-
-  /**
-   * Deletes the first employee entry in the current filtered result set.
-   */
-  async deleteEmployee() {
-    await this.deleteButton.click();
-    await this.confirmDeleteButton.click();
+  async navigateToPIM(): Promise<void> {
+    await this.page.goto('/pim/viewEmployeeList');
+    await this.verifyPIM();
   }
 
   /**
