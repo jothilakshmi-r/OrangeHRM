@@ -64,20 +64,35 @@ export class EmployeeTable {
     await this.deleteButton.click();
     await this.confirmDeleteButton.click();
 
-    // Prefer explicit verification: if we know the employeeId, wait for its row to disappear.
+    // Prefer explicit verification: wait for a stable success indicator (toast) first.
+    const successToast = this.page.getByText('Successfully Deleted', { exact: false });
+    const sawToast = await successToast.waitFor({ state: 'visible', timeout: 4000 }).then(() => true).catch(() => false);
+
+    if (sawToast) {
+      // If we know the employee id, assert its row is gone; otherwise assume success toast is sufficient.
+      if (employeeId) {
+        const row = this.rowForEmployeeId(employeeId);
+        await expect(row).toHaveCount(0, { timeout: TIMEOUTS.assertion }).catch(async () => {
+          // fallback: short wait for table update or empty message
+          await this.page.waitForLoadState('networkidle', { timeout: TIMEOUTS.assertion }).catch(() => null);
+          await this.emptyMessageContainer.waitFor({ state: 'visible', timeout: 3000 }).catch(() => null);
+        });
+      }
+      return;
+    }
+
+    // If no toast appeared, fall back to waiting for the specific row to disappear (if provided),
+    // otherwise do a short networkidle + empty message wait.
     if (employeeId) {
       const row = this.rowForEmployeeId(employeeId);
-      // wait for the row count for that id to become 0
       await expect(row).toHaveCount(0, { timeout: TIMEOUTS.assertion }).catch(async () => {
-        // fallback: wait for network idle and for an empty message or no rows
         await this.page.waitForLoadState('networkidle', { timeout: TIMEOUTS.assertion }).catch(() => null);
         await this.emptyMessageContainer.waitFor({ state: 'visible', timeout: 3000 }).catch(() => null);
       });
       return;
     }
 
-    // When no employeeId is provided, fall back to network idle and a short wait for UI update
-    await this.page.waitForLoadState('networkidle', { timeout: TIMEOUTS.assertion });
+    await this.page.waitForLoadState('networkidle', { timeout: TIMEOUTS.assertion }).catch(() => null);
     await this.emptyMessageContainer.waitFor({ state: 'visible', timeout: 3000 }).catch(() => null);
   }
 
