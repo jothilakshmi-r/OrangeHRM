@@ -34,8 +34,6 @@ export class EmployeeTable {
   async searchByName(name: string): Promise<void> {
     await this.employeeNameInput.fill(name);
     await this.searchButton.click();
-    // Wait for the table to update after search
-    await this.page.waitForLoadState('networkidle', { timeout: TIMEOUTS.assertion });
   }
 
   /**
@@ -89,8 +87,6 @@ export class EmployeeTable {
     await this.employeeNameInput.clear();
     await this.employeeIdInput.clear();
     await this.searchButton.click();
-    // Wait for the table to update after clearing filters
-    await this.page.waitForLoadState('networkidle', { timeout: TIMEOUTS.assertion });
   }
 
   /**
