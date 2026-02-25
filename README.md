@@ -58,6 +58,3 @@ The repo uses a `storage/auth.json` storageState file when running locally via t
 If tests appear slow or flaky, prefer:
 - Waiting for a specific success indicator (toast) or row disappearance instead of `networkidle`.
 - Targeted locators (`employeeId`) instead of scanning full tables with `locator.count()`.
-
-## Contact
-If you want me to run CI, upload traces, or further harden waits, tell me which step to take next.
