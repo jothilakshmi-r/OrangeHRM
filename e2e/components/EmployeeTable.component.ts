@@ -21,7 +21,8 @@ export class EmployeeTable {
     this.searchButton = this.page.getByRole('button', { name: 'Search' });
     this.deleteButton = this.page.locator('i.bi-trash').first();
     this.confirmDeleteButton = this.page.getByRole('button', { name: 'Yes, Delete' });
-    this.noRecordsText = this.page.locator('text=/No matching records|No Data|No records found/i');
+    // Target the table-area "No Records Found" text (avoid toast match; use first() to handle multiple matches)
+    this.noRecordsText = this.page.locator('text=/No matching records|No Data|No records found/i').first();
     this.tableRows = this.page.locator('div.oxd-table-body >> div.oxd-table-card');
     this.emptyMessageContainer = this.page.locator('div.orangehrm-empty-state-container, div.text-center:has-text("No matching records")');
   }
@@ -74,13 +75,8 @@ export class EmployeeTable {
    * Uses both text detection and row count as fallback.
    */
   async verifyNoRecordsFound(): Promise<void> {
-    try {
-      // Try to find the text message first
-      await expect(this.noRecordsText).toBeVisible({ timeout: 5000 });
-      return;
-    } catch {
-      // fallback to row count check
-    }
+    await expect(this.noRecordsText).toBeVisible({ timeout: 5000 });
+      
     const rowCount = await this.getVisibleRowCount();
     if (rowCount === 0) return;
     throw new Error(`Expected no employee records but found ${rowCount} row(s)`);
