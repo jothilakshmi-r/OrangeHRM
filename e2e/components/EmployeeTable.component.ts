@@ -63,37 +63,11 @@ export class EmployeeTable {
   async deleteFirstEmployee(employeeId?: string): Promise<void> {
     await this.deleteButton.click();
     await this.confirmDeleteButton.click();
-
-    // Prefer explicit verification: wait for a stable success indicator (toast) first.
-    const successToast = this.page.getByText('Successfully Deleted', { exact: false });
-    const sawToast = await successToast.waitFor({ state: 'visible', timeout: 4000 }).then(() => true).catch(() => false);
-
-    if (sawToast) {
-      // If we know the employee id, assert its row is gone; otherwise assume success toast is sufficient.
-      if (employeeId) {
-        const row = this.rowForEmployeeId(employeeId);
-        await expect(row).toHaveCount(0, { timeout: TIMEOUTS.assertion }).catch(async () => {
-          // fallback: short wait for table update or empty message
-          await this.page.waitForLoadState('networkidle', { timeout: TIMEOUTS.assertion }).catch(() => null);
-          await this.emptyMessageContainer.waitFor({ state: 'visible', timeout: 3000 }).catch(() => null);
-        });
-      }
-      return;
-    }
-
-    // If no toast appeared, fall back to waiting for the specific row to disappear (if provided),
-    // otherwise do a short networkidle + empty message wait.
+    // Only verify deletion by checking that the employee row for the provided id disappears.
     if (employeeId) {
       const row = this.rowForEmployeeId(employeeId);
-      await expect(row).toHaveCount(0, { timeout: TIMEOUTS.assertion }).catch(async () => {
-        await this.page.waitForLoadState('networkidle', { timeout: TIMEOUTS.assertion }).catch(() => null);
-        await this.emptyMessageContainer.waitFor({ state: 'visible', timeout: 3000 }).catch(() => null);
-      });
-      return;
+      await expect(row).toHaveCount(0, { timeout: TIMEOUTS.assertion });
     }
-
-    await this.page.waitForLoadState('networkidle', { timeout: TIMEOUTS.assertion }).catch(() => null);
-    await this.emptyMessageContainer.waitFor({ state: 'visible', timeout: 3000 }).catch(() => null);
   }
 
   /**
