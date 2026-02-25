@@ -43,14 +43,13 @@ export class EmployeeTable {
     await this.employeeNameInput.fill('');
     await this.employeeIdInput.fill(employeeId);
     await this.searchButton.click();
-    }
-  }
-
+   }
+  
   /**
    * Deletes the first employee entry in the current search results.
    * Verifies deletion by waiting for the "No Records Found" message.
    */
-  async deleteFirstEmployee(employeeId?: string): Promise<void> {
+  async deleteFirstEmployee(): Promise<void> {
     await this.deleteButton.click();
     await this.confirmDeleteButton.click();
     // Verify deletion by waiting for "No Records Found" or empty state message.
