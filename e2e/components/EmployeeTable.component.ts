@@ -13,7 +13,6 @@ export class EmployeeTable {
   private readonly confirmDeleteButton: Locator;
   private readonly noRecordsText: Locator;
   private readonly tableRows: Locator;
-  private readonly emptyMessageContainer: Locator;
 
   constructor(private readonly page: Page) {
     this.employeeNameInput = this.page.locator('input[placeholder="Type for hints..."]').first();
@@ -24,7 +23,6 @@ export class EmployeeTable {
     // Target the table-area "No Records Found" text (avoid toast match; use first() to handle multiple matches)
     this.noRecordsText = this.page.locator('text=/No matching records|No Data|No records found/i').first();
     this.tableRows = this.page.locator('div.oxd-table-body >> div.oxd-table-card');
-    this.emptyMessageContainer = this.page.locator('div.orangehrm-empty-state-container, div.text-center:has-text("No matching records")');
   }
 
   /**
@@ -45,14 +43,6 @@ export class EmployeeTable {
     await this.employeeNameInput.fill('');
     await this.employeeIdInput.fill(employeeId);
     await this.searchButton.click();
-
-    // Wait for either the specific row to appear or the empty message
-    const row = this.rowForEmployeeId(employeeId);
-    try {
-      await expect(row).toBeVisible({ timeout: TIMEOUTS.assertion });
-    } catch {
-      // If row not visible, wait for empty message as fallback
-      await this.emptyMessageContainer.waitFor({ state: 'visible', timeout: TIMEOUTS.assertion }).catch(() => null);
     }
   }
 
