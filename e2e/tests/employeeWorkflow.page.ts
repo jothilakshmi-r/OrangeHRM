@@ -57,26 +57,20 @@ test.describe('Employee Workflow', () => {
     });
 
     await test.step('Delete employee', async () => {
-      await pimPage.employeeTable.deleteFirstEmployee();
+      await pimPage.employeeTable.deleteFirstEmployee(employeeId);
       addLog(`Deleted employeeId=${employeeId}.`);
     });
 
     await test.step('Verify employee deletion', async () => {
       await sideNav.goToPIM();
       await pimPage.employeeTable.clearSearch();
-      
-      // Get row count before search
-      const rowCountBefore = await pimPage.employeeTable.getVisibleRowCount();
-      
-      // Search for the deleted employee
+      // Search for the deleted employee and assert it's absent
       await pimPage.employeeTable.searchById(employeeId);
-      const rowCountAfter = await pimPage.employeeTable.getVisibleRowCount();
-      
-      // Verify no matching records found
-      if (rowCountAfter === 0 || rowCountAfter < rowCountBefore) {
-        addLog(`Verified employeeId=${employeeId} deletion: rows before=${rowCountBefore}, rows after=${rowCountAfter}.`);
-      } else {
-        addLog(`Warning: Employee record may still exist. Rows: ${rowCountAfter}`);
+      try {
+        await pimPage.employeeTable.expectEmployeeAbsent(employeeId);
+        addLog(`Verified employeeId=${employeeId} deletion: no matching rows found.`);
+      } catch (err) {
+        addLog(`Warning: Employee record may still exist for employeeId=${employeeId}.`);
       }
     });
 
