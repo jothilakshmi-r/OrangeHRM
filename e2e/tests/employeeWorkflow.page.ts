@@ -48,12 +48,8 @@ test.describe('Employee Workflow', () => {
     await test.step('Search employee and verify present', async () => {
       await sideNav.goToPIM();
       await pimPage.employeeTable.searchById(employeeId);
-      const rowCount = await pimPage.employeeTable.getVisibleRowCount();
-      if (rowCount > 0) {
-        addLog(`Verified employeeId=${employeeId} is present in results (${rowCount} row(s) found).`);
-      } else {
-        throw new Error(`Employee with ID ${employeeId} not found in search results.`);
-      }
+      await pimPage.employeeTable.expectEmployeePresent(employeeId);
+      addLog(`Verified employeeId=${employeeId} is present in search results.`);
     });
 
     await test.step('Delete employee', async () => {

@@ -49,7 +49,7 @@ export class EmployeeTable {
    * Deletes the first employee entry in the current search results.
    * Verifies deletion by waiting for the "No Records Found" message.
    */
-  async deleteFirstEmployee(): Promise<void> {
+  async deleteFirstEmployee(employeeId: string): Promise<void> {
     await this.deleteButton.click();
     await this.confirmDeleteButton.click();
     // Verify deletion by waiting for "No Records Found" or empty state message.
@@ -83,15 +83,18 @@ export class EmployeeTable {
    * Returns a locator for the table row that contains the given employee id.
    */
   private rowForEmployeeId(employeeId: string) {
-    return this.page.locator(`div.oxd-table-body >> div:has-text("${employeeId}")`);
+    return this.tableRows.filter({
+      has: this.page.getByRole('cell', { name: employeeId, exact: true }),
+    });
   }
 
   /**
    * Assert the employee row is present for the given id.
    */
   async expectEmployeePresent(employeeId: string) {
-    const row = this.rowForEmployeeId(employeeId);
-    await expect(row).toBeVisible({ timeout: TIMEOUTS.assertion });
+    const rows = this.rowForEmployeeId(employeeId);
+    await expect(rows).toHaveCount(1, { timeout: TIMEOUTS.assertion });
+    await expect(rows.first()).toBeVisible({ timeout: TIMEOUTS.assertion });
   }
 
   /**
