@@ -27,6 +27,10 @@ export class EmployeeForm {
     await this.employeeIdInput.fill(employeeId);
     await this.saveButton.click();
 
+    // Wait for page load after save to ensure the employee record is persisted.
+    await this.page.waitForLoadState('networkidle', { timeout: TIMEOUTS.navigation });
+    
+    // Then verify navigation to the employee details page.
     await expect(this.page).toHaveURL(/\/pim\/viewPersonalDetails\/empNumber\//, {
       timeout: TIMEOUTS.navigation,
     });
