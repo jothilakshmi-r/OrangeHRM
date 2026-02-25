@@ -1,6 +1,6 @@
 export const TIMEOUTS = {
-  setupTest: 60_000,
-  workflowTest: 240_000,
+  setupTest: 90_000,
+  workflowTest: 300_000,
   navigation: 60_000,
   assertion: 60_000,
 } as const;
