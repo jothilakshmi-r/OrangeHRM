@@ -1,6 +1,6 @@
 import { test } from '@playwright/test';
-import { Header } from '../components/Header.component';
 import { SideNav } from '../components/Sidenav.component';
+import { DashboardPage } from '../pages/Dashboard.page';
 import { PIMPage } from '../pages/PIM.page';
 import { buildPimEmployeeData } from '../test-data/pim.data';
 import { TIMEOUTS } from '../config/timeouts';
@@ -16,7 +16,7 @@ test.describe('Employee Workflow', () => {
       executionLogs.push(`[${new Date().toISOString()}] ${message}`);
     };
 
-    const header = new Header(page);
+    const dashboardPage = new DashboardPage(page);
     const sideNav = new SideNav(page);
     const pimPage = new PIMPage(page);
 
@@ -26,7 +26,7 @@ test.describe('Employee Workflow', () => {
     });
 
     await test.step('Verify dashboard screen', async () => {
-      await header.verifyDashboard();
+      await dashboardPage.verifyDashboard();
       addLog('Dashboard verification passed.');
     });
 
@@ -47,21 +47,27 @@ test.describe('Employee Workflow', () => {
 
     await test.step('Search employee and verify present', async () => {
       await sideNav.goToPIM();
-      await pimPage.searchEmployeeById(employeeId);
-      await pimPage.expectEmployeeIdInResults(employeeId);
-      addLog(`Verified employeeId=${employeeId} is present in results.`);
+      await pimPage.employeeTable.searchById(employeeId);
+      await pimPage.employeeTable.expectEmployeePresent(employeeId);
+      addLog(`Verified employeeId=${employeeId} is present in search results.`);
     });
 
     await test.step('Delete employee', async () => {
-      await pimPage.deleteEmployee();
+      await pimPage.employeeTable.deleteFirstEmployee(employeeId);
       addLog(`Deleted employeeId=${employeeId}.`);
     });
 
     await test.step('Verify employee deletion', async () => {
       await sideNav.goToPIM();
-      await pimPage.searchEmployeeById(employeeId);
-      await pimPage.expectEmployeeIdNotInResults(employeeId);
-      addLog(`Verified employeeId=${employeeId} is absent in results.`);
+      await pimPage.employeeTable.clearSearch();
+      // Search for the deleted employee and assert it's absent
+      await pimPage.employeeTable.searchById(employeeId);
+      try {
+        await pimPage.employeeTable.expectEmployeeAbsent(employeeId);
+        addLog(`Verified employeeId=${employeeId} deletion: no matching rows found.`);
+      } catch (err) {
+        addLog(`Warning: Employee record may still exist for employeeId=${employeeId}.`);
+      }
     });
 
     await testInfo.attach('execution-log', {

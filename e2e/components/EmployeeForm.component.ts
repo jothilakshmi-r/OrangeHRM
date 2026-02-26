@@ -27,6 +27,7 @@ export class EmployeeForm {
     await this.employeeIdInput.fill(employeeId);
     await this.saveButton.click();
 
+    // Verify navigation to the employee details page after save.
     await expect(this.page).toHaveURL(/\/pim\/viewPersonalDetails\/empNumber\//, {
       timeout: TIMEOUTS.navigation,
     });
